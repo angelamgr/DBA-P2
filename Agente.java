@@ -4,30 +4,17 @@
  */
 package Practica2;
 
-import jade.core.Agent;
+//import jade.core.Agent;
 
 /**
  *
  * @author adrianrv007
  */
-public class Agente extends Agent{
+public class Agente{
 	private int Energy = 0;
 	
 	private int [] InitialPos = new int [2];
 	private int [] TargetPos = new int [2];
 	private int [] ActualPos = new int [2];
 	
-
-	
-	@Override
-	protected void setup()
-	{
-		
-	}
-	
-	@Override
-	public void takeDown()
-	{
-		System.out.println("Terminating agent...");
-	}
 }

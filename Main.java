@@ -11,13 +11,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
-import jade.core.Runtime;
-import jade.core.Profile;
-import jade.core.ProfileImpl;
+//import jade.core.Runtime;
+//import jade.core.Profile;
+//import jade.core.ProfileImpl;
 
-import jade.wrapper.AgentController;
-import jade.wrapper.ContainerController;
-import jade.wrapper.StaleProxyException;
+//import jade.wrapper.AgentController;
+//import jade.wrapper.ContainerController;
+//import jade.wrapper.StaleProxyException;
 
 /**
  *
@@ -87,5 +87,5 @@ public class Main {
 		Entorno entorno = new Entorno(mapaSinObstaculos, AgentPos, TargetPos);
 		
 		System.out.println(entorno.libreArriba());
-	}
+	}   
 }
