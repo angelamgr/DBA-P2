@@ -26,7 +26,10 @@ public class GUI extends JFrame {
 
         // Crear y añadir la etiqueta de energía del agente
         energiaLabel = new JLabel("Energía del agente: " + controlador.getEnergia());
-        add(energiaLabel, BorderLayout.SOUTH);
+        JPanel energiaPanel = new JPanel();
+        energiaPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        energiaPanel.add(energiaLabel);
+        add(energiaPanel, BorderLayout.SOUTH);
     }
 
     public void actualizarMapa() {
