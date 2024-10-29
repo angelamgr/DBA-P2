@@ -6,9 +6,9 @@ import java.awt.event.KeyEvent;
 
 public class Main2 {
     public static void main(String[] args) {
-        Mapa mapa = new Mapa("mapWithComplexObstacle3.txt"); // Asumiendo que tienes una clase Mapa
-        int[] APos = {5, 6}; // Posición inicial del agente
-        int[] TPos = {0, 0}; // Posición del objetivo
+        Mapa mapa = new Mapa("mapWithComplexObstacle2.txt"); // Asumiendo que tienes una clase Mapa
+        int[] APos = {5, 7}; // Posición inicial del agente
+        int[] TPos = {3, 5}; // Posición del objetivo
         Entorno entorno = new Entorno(mapa, APos, TPos);
         Controlador controlador = new Controlador(entorno, null);
         GUI gui = new GUI(controlador, mapa);
