@@ -1,9 +1,11 @@
-package Practica2;
+package practica2;
 
+import jade.wrapper.AgentController;
 import java.util.ArrayList;
 
 public class Controlador {
-    private Entorno entorno;
+    private final Entorno entorno;
+    private AgentController agente;
     private GUI gui;
 
     public Controlador(Entorno entorno, GUI gui) {
@@ -19,21 +21,29 @@ public class Controlador {
         this.gui = gui;
     }
 
-    public int[] getAgentPos() {
+    public void setAgent(AgentController agente) {
+        this.agente = agente;
+    }
+
+    public AgentController getAgent() {
+        return agente;
+    }
+    
+
+    public Coordenadas getAgentPos() {
         return entorno.getAgentPos();
     }
 
-    public int[] getTargetPos() {
+    public Coordenadas getTargetPos() {
         return entorno.getTargetPos();
     }
 
     public void iniciarEntorno() {
-        entorno.mostrarRecorrido();
+        gui.actualizarMapa();
     }
 
     public boolean moverAgenteArriba() {
-        if (entorno.libreArriba()) {
-            entorno.actualizarAgente(entorno.getAgentPos()[0] - 1, entorno.getAgentPos()[1]);
+        if (entorno.getDireccion() == Direccion.ARRIBA && entorno.getActualizar()) {
             gui.actualizarMapa();
             verificarObjetivo();
             return true;
@@ -43,8 +53,7 @@ public class Controlador {
     }
 
     public boolean moverAgenteAbajo() {
-        if (entorno.libreAbajo()) {
-            entorno.actualizarAgente(entorno.getAgentPos()[0] + 1, entorno.getAgentPos()[1]);
+        if (entorno.getDireccion() == Direccion.ABAJO && entorno.getActualizar()) {
             gui.actualizarMapa();
             verificarObjetivo();
             return true;
@@ -54,8 +63,7 @@ public class Controlador {
     }
 
     public boolean moverAgenteIzquierda() {
-        if (entorno.libreIzda()) {
-            entorno.actualizarAgente(entorno.getAgentPos()[0], entorno.getAgentPos()[1] - 1);
+        if (entorno.getDireccion() == Direccion.IZQUIERDA && entorno.getActualizar()) {
             gui.actualizarMapa();
             verificarObjetivo();
             return true;
@@ -65,8 +73,7 @@ public class Controlador {
     }
 
     public boolean moverAgenteDerecha() {
-        if (entorno.libreDcha()) {
-            entorno.actualizarAgente(entorno.getAgentPos()[0], entorno.getAgentPos()[1] + 1);
+        if (entorno.getDireccion() == Direccion.DERECHA && entorno.getActualizar()) {
             gui.actualizarMapa();
             verificarObjetivo();
             return true;
@@ -76,8 +83,13 @@ public class Controlador {
     }
 
     public void verificarObjetivo() {
-        if (entorno.getAgentPos()[0] == entorno.getTargetPos()[0]
-                && entorno.getAgentPos()[1] == entorno.getTargetPos()[1]) {
+        int xAgente = entorno.getAgentPos().getX();
+        int yAgente = entorno.getAgentPos().getY();
+        int xTarget = entorno.getTargetPos().getX();
+        int yTarget = entorno.getTargetPos().getY();
+
+
+        if (xAgente == xTarget && yAgente == yTarget) {
             // Se abre un JOptionPane para mostrar un mensaje de éxito y la energía
             // consumida
             int energiaConsumida = getEnergia();
@@ -93,25 +105,9 @@ public class Controlador {
         return entorno.getCoordenadas().size() - 1;
     }
 
-    public void agentePensar() {
-        Direccion decisionAgente = entorno.agentePensar();
-        switch (decisionAgente) {
-            case ARRIBA:
-                moverAgenteArriba();
-                break;
-            case ABAJO:
-                moverAgenteAbajo();
-                break;
-            case IZQUIERDA:
-                moverAgenteIzquierda();
-                break;
-            case DERECHA:
-                moverAgenteDerecha();
-                break;
-            default:
-                System.out.println("Decisión no válida");
-                break;
-        }
+    // Método para actualizar el mapa en la GUI
+    public void refrescarMapa() {
+        gui.actualizarMapa();
     }
 }
 

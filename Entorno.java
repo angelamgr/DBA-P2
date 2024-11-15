@@ -1,120 +1,104 @@
-package Practica2;
+package practica2;
 
 import java.util.ArrayList;
 
 public class Entorno {
-	private Mapa map;
-	private int[] AgentPos = new int[2];
-	private int[] TargetPos = new int[2];
+    private final Mundo mapa;
+    private final Coordenadas agente;
+    private final Coordenadas objetivo;
+    private final ArrayList<Coordenadas> coordenadas = new ArrayList<>();
+    private int energia;
+    Direccion direccion;
+    boolean actualizar = false;
 
-	private ArrayList<Coordenadas> coordenadas = new ArrayList<>();
+    public Entorno(Mundo mapa, Coordenadas inicio, Coordenadas objetivo) {
+        this.mapa = mapa;
+        this.agente = inicio;
+        this.objetivo = objetivo;
+        this.energia = 0;
+        coordenadas.add(new Coordenadas(inicio.getX(), inicio.getY()));
+    }
 
-	public Entorno(Mapa mapa, int[] APos, int[] TPos) {
-		map = mapa;
-		AgentPos = APos;
-		TargetPos = TPos;
-		coordenadas.add(new Coordenadas(AgentPos[0], AgentPos[1]));
-	}
+    // Método para ver las celdas adyacentes sin mostrar la posición exacta al
+    // agente
+    public int[] see() {
+        return new int[] {
+                mapa.getCasilla(agente.getX() - 1, agente.getY()), // Norte
+                mapa.getCasilla(agente.getX() + 1, agente.getY()), // Sur
+                mapa.getCasilla(agente.getX(), agente.getY() - 1), // Oeste
+                mapa.getCasilla(agente.getX(), agente.getY() + 1) // Este
+        };
+    }
 
-	public int[] getAgentPos() {
-		return AgentPos;
-	}
+    public boolean libreArriba() {
+        return !(this.agente.getX() == 0 || mapa.getCasilla(this.agente.getX() - 1, this.agente.getY()) == -1);
+    }
 
-	public int[] getTargetPos() {
-		return TargetPos;
-	}
+    public boolean libreAbajo() {
+        return !(this.agente.getX() == mapa.getFila() - 1 || mapa.getCasilla(this.agente.getX() + 1, this.agente.getY()) == -1);
+    }
 
-	public boolean libreArriba() {
-		return !(AgentPos[0] == 0 || map.getValor(AgentPos[0] - 1, AgentPos[1]) == -1);
-	}
+    public boolean libreIzda() {
+        return !(this.agente.getY() == 0 || mapa.getCasilla(this.agente.getX(), this.agente.getY() - 1) == -1);
+    }
 
-	public boolean libreAbajo() {
-		return !(AgentPos[0] == map.getFila() - 1 || map.getValor(AgentPos[0] + 1, AgentPos[1]) == -1);
-	}
+    public boolean libreDcha() {
+        return !(this.agente.getY() == mapa.getColumna() - 1 || mapa.getCasilla(this.agente.getX(), this.agente.getY() + 1) == -1);
+    }
 
-	public boolean libreIzda() {
-		return !(AgentPos[1] == 0 || map.getValor(AgentPos[0], AgentPos[1] - 1) == -1);
-	}
 
-	public boolean libreDcha() {
-		return !(AgentPos[1] == map.getColumna() - 1 || map.getValor(AgentPos[0], AgentPos[1] + 1) == -1);
-	}
+    // Método para mover al agente en el entorno
+    public boolean moverAgente(int dx, int dy) {
+        int nuevaX = agente.getX() + dx;
+        int nuevaY = agente.getY() + dy;
 
-	public void actualizarAgente(int fila, int columna) {
-		AgentPos[0] = fila;
-		AgentPos[1] = columna;
-		coordenadas.add(new Coordenadas(fila, columna));
-	}
+        if (mapa.getCasilla(nuevaX, nuevaY) == 0) { // Verifica si la celda es accesible
+            // Comprobamos hacia qué dirección se movió el agente
+            if (dx == -1) {
+                direccion = Direccion.ARRIBA;
+            } else if (dx == 1) {
+                direccion = Direccion.ABAJO;
+            } else if (dy == -1) {
+                direccion = Direccion.IZQUIERDA;
+            } else if (dy == 1) {
+                direccion = Direccion.DERECHA;
+            }
+            agente.setX(nuevaX);
+            agente.setY(nuevaY);
+            energia++;
+            this.coordenadas.add(new Coordenadas(nuevaX, nuevaY));
+            actualizar = true;
+            return true; // Movimiento exitoso
+        }
+        actualizar = false;
+        return false; // Movimiento bloqueado
+    }
 
-	public void mostrarRecorrido() {
-		for (int i = 0; i < coordenadas.size(); i++) {
-			map.setValor(coordenadas.get(i).getX(), coordenadas.get(i).getY(), 5);
-		}
-	}
-	
-	public ArrayList<Coordenadas> getCoordenadas(){
-		return coordenadas;
-	}
+    public boolean objetivoAlcanzado() {
+        return agente.getX() == objetivo.getX() && agente.getY() == objetivo.getY();
+    }
 
-	public int funcionHeuristica(int[] posAgente, int[] posObjetivo){
-		return Math.abs(posAgente[0] - posObjetivo[0]) + Math.abs(posAgente[1] - posObjetivo[1]);
-	}
+    public int getEnergia() {
+        return energia;
+    }
 
-	public int funcionHeuristicaConObstaculos(int[] posAgente, int[] posObjetivo) {
-		int heuristica = funcionHeuristica(posAgente, posObjetivo);
-		for (Coordenadas coord : coordenadas) {
-			if (coord.getX() == posAgente[0] && coord.getY() == posAgente[1]) {
-				heuristica += 10; // Incrementa el costo si ya has pasado por esta casilla
-			}
-		}
-		return heuristica;
-	}
+    public Direccion getDireccion() {
+        return direccion;
+    }
 
-	public Direccion agentePensar(){
-		int[] posAgente = getAgentPos();
-		int[] posObjetivo = getTargetPos();
-		int costo = 0;
-		int costoMovimiento = 0;
-		int costoTotal = 0;
-		Direccion direccion = null;
-		Direccion direccionFinal = null;
-		int costoFinal = Integer.MAX_VALUE;
-		if(libreArriba()){
-			costo = funcionHeuristicaConObstaculos(new int[]{posAgente[0] - 1, posAgente[1]}, posObjetivo);
-			costoMovimiento = costo + 1;
-			costoTotal = costoMovimiento;
-			if(costoTotal < costoFinal){
-				costoFinal = costoTotal;
-				direccionFinal = Direccion.ARRIBA;
-			}
-		}
-		if(libreAbajo()){
-			costo = funcionHeuristicaConObstaculos(new int[]{posAgente[0] + 1, posAgente[1]}, posObjetivo);
-			costoMovimiento = costo + 1;
-			costoTotal = costoMovimiento;
-			if(costoTotal < costoFinal){
-				costoFinal = costoTotal;
-				direccionFinal = Direccion.ABAJO;
-			}
-		}
-		if(libreIzda()){
-			costo = funcionHeuristicaConObstaculos(new int[]{posAgente[0], posAgente[1] - 1}, posObjetivo);
-			costoMovimiento = costo + 1;
-			costoTotal = costoMovimiento;
-			if(costoTotal < costoFinal){
-				costoFinal = costoTotal;
-				direccionFinal = Direccion.IZQUIERDA;
-			}
-		}
-		if(libreDcha()){
-			costo = funcionHeuristicaConObstaculos(new int[]{posAgente[0], posAgente[1] + 1}, posObjetivo);
-			costoMovimiento = costo + 1;
-			costoTotal = costoMovimiento;
-			if(costoTotal < costoFinal){
-				costoFinal = costoTotal;
-				direccionFinal = Direccion.DERECHA;
-			}
-		}
-		return direccionFinal;
-	}
+    Coordenadas getAgentPos() {
+        return this.agente;
+    }
+
+    Coordenadas getTargetPos() {
+        return this.objetivo;
+    }
+
+    public ArrayList<Coordenadas> getCoordenadas() {
+        return coordenadas;
+    }
+
+    public boolean getActualizar() {
+        return actualizar;
+    }
 }
